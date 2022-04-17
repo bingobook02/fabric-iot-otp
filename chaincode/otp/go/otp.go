@@ -69,6 +69,7 @@ func (s *SmartContract) QueryAllDevices(ctx contractapi.TransactionContextInterf
 	startKey := ""
 	endKey := ""
 
+	
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 
 	if err != nil {

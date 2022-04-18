@@ -19,7 +19,7 @@ type SmartContract struct {
 // Device describes basic details of what makes up a device
 type Device struct {
 	ID   string `json:"deviceid"`
-	Time     string `json:"timestamp"`
+	Time string `json:"timestamp"`
 }
 
 // QueryResult structure used for handling result of query
@@ -47,15 +47,15 @@ func (s *SmartContract) RegisterDevice(ctx contractapi.TransactionContextInterfa
 }
 
 // QueryDevice returns the device stored in the world state with given id
-func (s *SmartContract) QueryDevice(ctx contractapi.TransactionContextInterface, deviceNumber string) (*Device, error) {
-	deviceAsBytes, err := ctx.GetStub().GetState(deviceNumber)
+func (s *SmartContract) QueryDevice(ctx contractapi.TransactionContextInterface, deviceID string) (*Device, error) {
+	deviceAsBytes, err := ctx.GetStub().GetState(deviceID)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read from world state. %s", err.Error())
+		return nil, fmt.Errorf("failed to read from world state. %s", err.Error())
 	}
 
 	if deviceAsBytes == nil {
-		return nil, fmt.Errorf("%s does not exist", deviceNumber)
+		return nil, fmt.Errorf("%s does not exist", deviceID)
 	}
 
 	device := new(Device)
@@ -64,13 +64,32 @@ func (s *SmartContract) QueryDevice(ctx contractapi.TransactionContextInterface,
 	return device, nil
 }
 
+// DeleteDevice deletes an given asset from the world state.
+func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, deviceID string) error {
+	exists, err := s.DeviceExists(ctx, deviceID)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("the asset %s does not exist", deviceID)
+	}
+
+	return ctx.GetStub().DelState(deviceID)
+}
+
+// DeviceExists returns true when asset with given ID exists in world state
+func (s *SmartContract) DeviceExists(ctx contractapi.TransactionContextInterface, deviceID string) (bool, error) {
+	deviceJSON, err := ctx.GetStub().GetState(deviceID)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+
+	return deviceJSON != nil, nil
+}
+
 // QueryAllDevices returns all devices found in world state
 func (s *SmartContract) QueryAllDevices(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
-	startKey := ""
-	endKey := ""
-
-	
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 
 	if err != nil {
 		return nil, err

@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	contract, err := getContract("otp", network)
+	contract, err := getContract("iot_register_cc", network)
 	if err != nil {
 		fmt.Println(err)
 	}

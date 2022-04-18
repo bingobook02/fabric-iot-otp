@@ -1,51 +1,40 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"otp/utils"
+// func main1() {
+// 	// iot env
+// 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
-)
+// 	r := mux.NewRouter()
 
-func main1() {
-	// iot env
-	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
+// 	r.HandleFunc("/add-device", addDevice)
 
-	r := mux.NewRouter()
+// 	// Solves Cross Origin Access Issue
+// 	c := cors.New(cors.Options{
+// 		AllowedOrigins: []string{"http://localhost:4200"},
+// 	})
+// 	handler := c.Handler(r)
 
-	r.HandleFunc("/add-device", addDevice)
+// 	srv := &http.Server{
+// 		Handler: handler,
+// 		Addr:    ":" + os.Getenv("PORT"),
+// 	}
 
-	// Solves Cross Origin Access Issue
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:4200"},
-	})
-	handler := c.Handler(r)
+// 	log.Fatal(srv.ListenAndServe())
+// }
 
-	srv := &http.Server{
-		Handler: handler,
-		Addr:    ":" + os.Getenv("PORT"),
-	}
+// func addDevice(w http.ResponseWriter, r *http.Request) {
+// 	var data = struct {
+// 		Title string `json:"title"`
+// 	}{
+// 		Title: "Golang + Angular Starter Kit",
+// 	}
 
-	log.Fatal(srv.ListenAndServe())
-}
+// 	jsonBytes, err := utils.StructToJSON(data)
+// 	if err != nil {
+// 		fmt.Print(err)
+// 	}
 
-func addDevice(w http.ResponseWriter, r *http.Request) {
-	var data = struct {
-		Title string `json:"title"`
-	}{
-		Title: "Golang + Angular Starter Kit",
-	}
-
-	jsonBytes, err := utils.StructToJSON(data)
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonBytes)
-	return
-}
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.Write(jsonBytes)
+// 	return
+// }

@@ -53,7 +53,7 @@ func populateWallet(user string, wallet *gateway.Wallet) error {
 		return err
 	}
 	if len(files) != 1 {
-		return errors.New("wallet: keystore folder should have contain one file")
+		return errors.New("wallet: keystore folder should have at least one file")
 	}
 	keyPath := filepath.Join(keyDir, files[0].Name())
 	key, err := ioutil.ReadFile(filepath.Clean(keyPath))

@@ -20,7 +20,6 @@ func getNetwork(user string, channel string, wallet *gateway.Wallet) (*gateway.N
 		"org1.example.com",
 		"connection-org1.yaml",
 	)
-
 	gw, err := gateway.Connect(
 		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
 		gateway.WithIdentity(wallet, user),

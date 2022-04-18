@@ -28,7 +28,9 @@ rm -rf ../iot-app/go/wallet/*
 pushd ../iot-network
 ./network.sh down
 ./network.sh up createChannel -c registerchannel -ca -s couchdb
-./network.sh deployCC -c registerchannel -ccn otp -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh up createChannel -c authenticatechannel -ca -s couchdb
+./network.sh deployCC -c registerchannel -ccn iot_register_cc -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}iot-register
+./network.sh deployCC -c authenticatechannel -ccn otp_auth_cc -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}otp-auth
 popd
 
 cat <<EOF
@@ -47,11 +49,5 @@ Go:
   Then, install dependencies and run the test using:
     go run otp.go
 
-  The test will invoke the sample client app which perform the following:
-    - Import user credentials into the wallet (if they don't already exist there)
-    - Submit a transaction to create a new car
-    - Evaluate a transaction (query) to return details of this car
-    - Submit a transaction to change the owner of this car
-    - Evaluate a transaction (query) to return the updated details of this car
 
 EOF

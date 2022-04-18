@@ -67,7 +67,6 @@ func (s *SmartContract) QueryOTP(ctx contractapi.TransactionContextInterface, de
 }
 
 func main() {
-
 	chaincode, err := contractapi.NewChaincode(new(SmartContract))
 
 	if err != nil {

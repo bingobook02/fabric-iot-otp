@@ -17,21 +17,42 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	network, err := getNetwork("thebingobook", "registerchannel", wallet)
+	// network, err := getNetwork("thebingobook", "registerchannel", wallet)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// contract, err := getContract("iot_register_cc", network)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// err = registerDevice(contract, Device{ID: "new", TimeStamp: "34234"})
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// err = getAllDevices(contract)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// err = getDevice(contract, "new")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	network, err := getNetwork("thebingobook", "authenticatechannel", wallet)
 	if err != nil {
 		fmt.Println(err)
 	}
-	contract, err := getContract("iot_register_cc", network)
+	contract, err := getContract("otp_auth_cc", network)
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = registerDevice(contract, Device{ID: "new", TimeStamp: "34234"})
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = getAllDevices(contract)
+	err = submitOTP(contract, "new")
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	err = retrieveOTP(contract, "new")
+	if err != nil {
+		fmt.Println(err)
+	}
 }

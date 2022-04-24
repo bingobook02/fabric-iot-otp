@@ -22,7 +22,7 @@ else
 fi
 
 # clean out any old identites in the wallets
-rm -rf ../iot-client/src/server/wallet/*
+rm -rf ../iot-server/src/server/wallet/*
 
 # launch network; create channel and join peer to channel
 pushd ../iot-network

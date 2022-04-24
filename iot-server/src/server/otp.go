@@ -8,69 +8,63 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"os/signal"
-	"syscall"
-
-	"github.com/logrusorgru/aurora"
-	mqtt "github.com/mochi-co/mqtt/server"
-	"github.com/mochi-co/mqtt/server/listeners"
+	"github.com/bingobook02/hyper_sdk"
 )
 
 func main() {
 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
-	sigs := make(chan os.Signal, 1)
-	done := make(chan bool, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigs
-		done <- true
-	}()
+	// sigs := make(chan os.Signal, 1)
+	// done := make(chan bool, 1)
+	// signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	// go func() {
+	// 	<-sigs
+	// 	done <- true
+	// }()
 
-	fmt.Println(aurora.Magenta("Mochi MQTT Server initializing..."), aurora.Cyan("TCP"))
+	// fmt.Println(aurora.Magenta("Mochi MQTT Server initializing..."), aurora.Cyan("TCP"))
 
-	// An example of configuring various server options...
-	options := &mqtt.Options{
-		BufferSize:      0, // Use default values
-		BufferBlockSize: 0, // Use default values
-	}
+	// // An example of configuring various server options...
+	// options := &mqtt.Options{
+	// 	BufferSize:      0, // Use default values
+	// 	BufferBlockSize: 0, // Use default values
+	// }
 
-	server := mqtt.NewServer(options)
-	tcp := listeners.NewTCP("t1", ":1886")
+	// server := mqtt.NewServer(options)
+	// tcp := listeners.NewTCP("t1", ":1886")
 
-	err := server.AddListener(tcp, &listeners.Config{
-		Auth: &Auth{Users: map[string]string{
-			"peach": "password1",
-			"melon": "password2",
-			"apple": "password3",
-		},
-			AllowedTopics: map[string][]string{
-				// Melon user only has access to melon topics.
-				// If you were implementing this in the real world, you might ensure
-				// that any topic prefixed with "melon" is allowed (see ACL func below).
-				"melon": {"melon/info", "melon/events"},
-			}},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := server.AddListener(tcp, &listeners.Config{
+	// 	Auth: &Auth{Users: map[string]string{
+	// 		"peach": "password1",
+	// 		"melon": "password2",
+	// 		"apple": "password3",
+	// 	},
+	// 		AllowedTopics: map[string][]string{
+	// 			// Melon user only has access to melon topics.
+	// 			// If you were implementing this in the real world, you might ensure
+	// 			// that any topic prefixed with "melon" is allowed (see ACL func below).
+	// 			"melon": {"melon/info", "melon/events"},
+	// 		}},
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	go func() {
-		err := server.Serve()
-		if err != nil {
-			log.Fatal(err)
-		}
+	// go func() {
+	// 	err := server.Serve()
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
 
-	}()
-	fmt.Println(aurora.BgMagenta("  Started!  "))
+	// }()
+	// fmt.Println(aurora.BgMagenta("  Started!  "))
 
-	<-done
-	fmt.Println(aurora.BgRed("  Caught Signal  "))
+	// <-done
+	// fmt.Println(aurora.BgRed("  Caught Signal  "))
 
-	server.Close()
-	fmt.Println(aurora.BgGreen("  Finished  "))
+	// server.Close()
+	// fmt.Println(aurora.BgGreen("  Finished  "))
 
 	// wallet, err := registerUserWallet("thebingobook")
 	// if err != nil {
@@ -97,23 +91,23 @@ func main() {
 	// 	fmt.Println(err)
 	// }
 
-	// network, err := getNetwork("thebingobook", "authenticatechannel", wallet)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// contract, err := getContract("otp_auth_cc", network)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// err = submitOTP(contract, "new")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	network, err := getNetwork("thebingobook", "authenticatechannel", wallet)
+	if err != nil {
+		fmt.Println(err)
+	}
+	contract, err := getContract("otp_auth_cc", network)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = (contract, "new")
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	// err = retrieveOTP(contract, "new")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	err = retrieveOTP(contract, "new")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 type Auth struct {

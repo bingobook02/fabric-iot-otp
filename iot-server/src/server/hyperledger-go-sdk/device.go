@@ -1,4 +1,4 @@
-package hyper_iot_tools
+package hyper_sdk
 
 import (
 	"fmt"

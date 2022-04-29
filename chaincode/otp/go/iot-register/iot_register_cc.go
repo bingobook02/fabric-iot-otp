@@ -18,8 +18,9 @@ type SmartContract struct {
 
 // Device describes basic details of what makes up a device
 type Device struct {
-	ID   string `json:"deviceid"`
-	Time string `json:"timestamp"`
+	ID              string `json:"deviceid"`
+	Time            string `json:"timestamp"`
+	IsAuthenticated bool   `json:"isauthenticated"`
 }
 
 // QueryResult structure used for handling result of query
@@ -37,8 +38,9 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 // RegisterDevice adds a new device to the world state with given details
 func (s *SmartContract) RegisterDevice(ctx contractapi.TransactionContextInterface, deviceID string, tiemstamp string) error {
 	device := Device{
-		ID:   deviceID,
-		Time: tiemstamp,
+		ID:              deviceID,
+		Time:            tiemstamp,
+		IsAuthenticated: false,
 	}
 
 	deviceAsBytes, _ := json.Marshal(device)

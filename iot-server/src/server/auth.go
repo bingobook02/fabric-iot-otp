@@ -36,18 +36,18 @@ func submitOTP(contract *gateway.Contract, deviceID string) error {
 	return nil
 }
 
-func retrieveOTP(contract *gateway.Contract, deviceID string) error {
+func retrieveOTP(contract *gateway.Contract, deviceID string) (*OTP, error) {
 	result, err := contract.EvaluateTransaction(QUERY_OTP_TRANSACTION, deviceID)
 	if err != nil {
-		return fmt.Errorf("otp: failed to retrieve device otp entry: %s", err)
+		return nil, fmt.Errorf("otp: failed to retrieve device otp entry: %s", err)
 	}
 	fmt.Println(string(result))
 	result_to_otp := new(OTP)
 	err = json.Unmarshal(result, result_to_otp)
 	if err != nil {
-		return fmt.Errorf("otp: failed to unmarshall result: %s", err)
+		return nil, fmt.Errorf("otp: failed to unmarshall result: %s", err)
 	}
-	return nil
+	return result_to_otp, nil
 }
 
 func generateOTP() (string, error) {
@@ -56,7 +56,7 @@ func generateOTP() (string, error) {
 		AccountName: "thebingobook",
 	})
 	if err != nil {
-		return "", fmt.Errorf("otp: failed to generate otp key: %s", err)
+		return "", fmt.Errorf("otp: failed to generate key: %s", err)
 	}
 	return key.Secret(), nil
 }

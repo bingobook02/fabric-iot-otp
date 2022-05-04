@@ -1,9 +1,4 @@
 #!/bin/bash
-#
-# Copyright IBM Corp All Rights Reserved
-#
-# SPDX-License-Identifier: Apache-2.0
-#
 # Exit on first error
 set -e
 
@@ -36,18 +31,5 @@ popd
 cat <<EOF
 
 Total setup execution time : $(($(date +%s) - starttime)) secs ...
-
-Next, use the otp applications to interact with the deployed otp contract.
-The otp applications are available in multiple programming languages.
-Follow the instructions for the programming language of your choice:
-
-Go:
-
-  Start by changing into the "go" directory:
-    cd go
-
-  Then, install dependencies and run the test using:
-    go run otp.go
-
 
 EOF

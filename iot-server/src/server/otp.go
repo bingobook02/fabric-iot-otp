@@ -1,9 +1,3 @@
-/*
-Copyright 2020 IBM All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package main
 
 import (
@@ -37,14 +31,14 @@ type clientAuthStatus struct {
 
 var savedOTPs map[string]clientAuthStatus
 
-func main() {
+func runServer() {
 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
 	// store otp per device, entries will be cleared onDisconnect
 	savedOTPs = make(map[string]clientAuthStatus)
 
 	// server starting
-	fmt.Println(aurora.Magenta("Mochi MQTT Server initializing..."), aurora.Cyan("TCP"))
+	fmt.Println(aurora.Magenta("MQTT Server initializing..."), aurora.Cyan("TCP"))
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -64,13 +58,11 @@ func main() {
 
 	err := server.AddListener(tcp, &listeners.Config{
 		Auth: &Auth{Users: map[string]string{
-			"thebingobook": "abc123",
+			"user1": "abc123",
 		},
+			// AllowedTopics arent actually used
 			AllowedTopics: map[string][]string{
-				// Melon user only has access to melon topics.
-				// If you were implementing this in the real world, you might ensure
-				// that any topic prefixed with "melon" is allowed (see ACL func below).
-				"melon": {"melon/info", "melon/events"},
+				"test": {"test/info", "test/events"},
 			}},
 	})
 	if err != nil {
@@ -97,15 +89,13 @@ func main() {
 
 	// cleanup client session
 	server.Events.OnDisconnect = func(cl events.Client, err error) {
-		if err != nil {
-			fmt.Printf("session ended for client %s with err:  %v\n", cl.ID, err)
-		}
-		fmt.Printf("session ended for client %s\n", err)
+		fmt.Printf("<< OnDisconnect client disconnected %s: %v\n", cl.ID, err)
 	}
 
 	server.Events.OnProcessMessage = func(cl events.Client, pk events.Packet) (pkx events.Packet, err error) {
-		fmt.Println("processing incoming message...")
-		return pk, nil
+		pkx = pk
+		fmt.Printf("< OnMessage received message from client %s\n", cl.ID)
+		return pkx, nil
 	}
 
 	server.Events.OnConnect = func(cl events.Client, pk events.Packet) {
@@ -141,7 +131,7 @@ type Auth struct {
 	OTP           string
 }
 
-// Authenticate returns true if a username and password are acceptable.
+// Authenticate returns true if a username and password are acceptable and client is registered.
 func (a *Auth) Authenticate(user, password []byte, clientID string) bool {
 	fmt.Println("starting basicAuth process")
 	if pass, ok := a.Users[string(user)]; ok && pass == string(password) {
@@ -170,13 +160,18 @@ func (a *Auth) Authenticate(user, password []byte, clientID string) bool {
 	return false
 }
 
-// ACL cun dictates pub/sub a client is allowed on, while validating otp password
+// ACL dictates pub/sub a client is allowed on, while validating otp password
 func (a *Auth) ACL(user []byte, clientID string, topic string, write bool) bool {
 	fmt.Printf("ACL validation for client: %s\n", clientID)
 	// block publishing to an auth topic from clients, safety against emitating broker
 	if strings.Contains(topic, "auth") && write {
-		fmt.Printf("client %s not authorized to publish on this topic\n", clientID)
+		fmt.Printf("client %s not authorized to publish on topic %s\n", clientID, topic)
 		return false
+	}
+	// accept subscription to topic auth
+	if strings.Contains(topic, "auth") && !write {
+		fmt.Printf("client %s is subscribed to topic %s\n", clientID, topic)
+		return true
 	}
 	fmt.Println("validating OTP is published by client, and within expiry time...")
 	if status, ok := savedOTPs[clientID]; ok {
@@ -190,6 +185,7 @@ func (a *Auth) ACL(user []byte, clientID string, topic string, write bool) bool 
 			}
 			network, err := getNetwork(string(user), AUTHENTICATION_CHANNEL, wallet)
 			if err != nil {
+				fmt.Println(err)
 				return false
 			}
 			contract, err := getContract(OTP_CC, network)
@@ -197,17 +193,20 @@ func (a *Auth) ACL(user []byte, clientID string, topic string, write bool) bool 
 				fmt.Println(err)
 				return false
 			}
-			err = retrieveOTP(contract, clientID)
+			otp_entry, err := retrieveOTP(contract, clientID)
 			if err != nil {
 				fmt.Println(err)
 				return false
 			}
-			fmt.Println("finished OTP verification, OTP is valid")
-			status.isAuthorized = true
-			savedOTPs[clientID] = status
-			return true
+			if otp_entry.DeviceID == clientID && status.otp == otp_entry.OTPEntry {
+				status.isAuthorized = true
+				savedOTPs[clientID] = status
+				fmt.Println("finished OTP verification, OTP is valid")
+				return true
+			}
 		}
+	} else {
+		fmt.Println("no client session entry found")
 	}
-	fmt.Println("no client session entry found")
 	return false
 }

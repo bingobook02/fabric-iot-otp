@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -27,18 +26,4 @@ func submitOTP(contract *gateway.Contract, deviceID string, otp string) error {
 	}
 	fmt.Println(string(result))
 	return nil
-}
-
-func retrieveOTP(contract *gateway.Contract, deviceID string) (*OTP, error) {
-	result, err := contract.EvaluateTransaction(QUERY_OTP_TRANSACTION, deviceID)
-	if err != nil {
-		return nil, fmt.Errorf("otp: failed to retrieve device otp entry: %s", err)
-	}
-	fmt.Println(string(result))
-	result_to_otp := new(OTP)
-	err = json.Unmarshal(result, result_to_otp)
-	if err != nil {
-		return nil, fmt.Errorf("otp: failed to unmarshall result: %s", err)
-	}
-	return result_to_otp, nil
 }

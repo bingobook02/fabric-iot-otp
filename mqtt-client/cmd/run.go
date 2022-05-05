@@ -62,12 +62,11 @@ var runCmd = &cobra.Command{
 		// Start client
 		cl := newDefaultClient(args[0], args[1], args[2])
 		cl.authenticationSub()
-		cl.makeDefaultSubs()
-		// if args[3] == "s" {
-		// 	cl.makeDefaultSubs()
-		// } else {
-		// 	cl.makeDefaultPubs()
-		// }
+		if args[3] == "makedefaultsubs" {
+			cl.makeDefaultSubs()
+		} else {
+			cl.makeDefaultPubs()
+		}
 		<-keepAlive
 	},
 }
@@ -77,8 +76,8 @@ var authMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqt
 	// invoking auth chaincode, if topic is auth/client_id
 	if strings.Contains(msg.Topic(), "auth") {
 		fmt.Println("received OTP password")
-		fmt.Println("invoking auth cc for OTP password")
 		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+		fmt.Println("invoking auth cc for OTP password")
 		options := client.OptionsReader()
 		wallet, err := registerUserWallet(options.Username())
 		if err != nil {
@@ -96,11 +95,10 @@ var authMessagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqt
 		if err != nil {
 			fmt.Println(err)
 		}
-		otp_entry, err := retrieveOTP(contract, options.ClientID())
+		err = submitOTP(contract, options.ClientID(), string(msg.Payload()))
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(otp_entry.OTPEntry, otp_entry.Expiry)
 	} else {
 		// accepting incoming messages
 		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
@@ -121,8 +119,9 @@ func (cl *Client) subscribe(topic string) {
 	token.Wait()
 	if token.Error() != nil {
 		fmt.Printf("failed to subscribe to topic %s with err: %v \n", topic, token.Error())
+	} else {
+		fmt.Printf("subscribed to topic %s\n", topic)
 	}
-	fmt.Printf("subscribed to topic %s\n", topic)
 }
 
 // define publish

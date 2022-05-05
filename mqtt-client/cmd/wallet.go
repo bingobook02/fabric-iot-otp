@@ -15,7 +15,6 @@ func registerUserWallet(user string) (*gateway.Wallet, error) {
 	if err != nil {
 		return nil, fmt.Errorf("wallet: failed to create wallet: %s", err)
 	}
-
 	if !wallet.Exists(user) {
 		err = populateWallet(user, wallet)
 		if err != nil {
@@ -27,7 +26,6 @@ func registerUserWallet(user string) (*gateway.Wallet, error) {
 
 func populateWallet(user string, wallet *gateway.Wallet) error {
 	credPath := filepath.Join(
-		"..",
 		"..",
 		"iot-network",
 		"organizations",

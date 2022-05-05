@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/logrusorgru/aurora"
 	mqtt "github.com/mochi-co/mqtt/server"
@@ -86,7 +87,6 @@ func runServer() {
 		fmt.Println("finished processing incoming message...")
 		return pkx, err
 	}
-
 	// cleanup client session
 	server.Events.OnDisconnect = func(cl events.Client, err error) {
 		fmt.Printf("<< OnDisconnect client disconnected %s: %v\n", cl.ID, err)
@@ -103,6 +103,7 @@ func runServer() {
 		// important to keep retain true, this holds the pub message until sub to topic is complete
 		fmt.Println("generating OTP...")
 		otp, err := generateOTP()
+		fmt.Printf("OTP generated: %s\n", otp)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -163,9 +164,9 @@ func (a *Auth) Authenticate(user, password []byte, clientID string) bool {
 // ACL dictates pub/sub a client is allowed on, while validating otp password
 func (a *Auth) ACL(user []byte, clientID string, topic string, write bool) bool {
 	fmt.Printf("ACL validation for client: %s\n", clientID)
-	// block publishing to an auth topic from clients, safety against emitating broker
-	if strings.Contains(topic, "auth") && write {
-		fmt.Printf("client %s not authorized to publish on topic %s\n", clientID, topic)
+	// block publishing to an auth topic from clients, safety against emitating broker, and subscribtion from emitating client
+	if (strings.Contains(topic, "auth") && write) || (strings.Contains(topic, "auth") && !write && !strings.Contains(topic, clientID)) {
+		fmt.Printf("client %s not authorized to subscribe or publish on topic %s\n", clientID, topic)
 		return false
 	}
 	// accept subscription to topic auth
@@ -178,6 +179,7 @@ func (a *Auth) ACL(user []byte, clientID string, topic string, write bool) bool 
 		if status.isAuthorized {
 			return true
 		} else {
+			time.Sleep(5 * time.Second)
 			wallet, err := registerUserWallet(string(user))
 			if err != nil {
 				fmt.Println(err)

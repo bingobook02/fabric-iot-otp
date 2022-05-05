@@ -25,6 +25,19 @@ func registerUserWallet(user string) (*gateway.Wallet, error) {
 	return wallet, nil
 }
 
+// getUserWallet creates a new user wallet, todo set on specific org
+func getUserWallet(user string) (*gateway.Wallet, error) {
+	wallet, err := gateway.NewFileSystemWallet("wallet")
+	if err != nil {
+		return nil, fmt.Errorf("wallet: failed to create wallet: %s", err)
+	}
+
+	if !wallet.Exists(user) {
+		return nil, fmt.Errorf("wallet does not exist for user %s\n", user)
+	}
+	return wallet, nil
+}
+
 func populateWallet(user string, wallet *gateway.Wallet) error {
 	credPath := filepath.Join(
 		"..",

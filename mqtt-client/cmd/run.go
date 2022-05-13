@@ -64,7 +64,8 @@ var runCmd = &cobra.Command{
 		cl.authenticationSub()
 		if args[3] == "makedefaultsubs" {
 			cl.makeDefaultSubs()
-		} else {
+		}
+		if args[3] == "makedefaultpubs" {
 			cl.makeDefaultPubs()
 		}
 		<-keepAlive
